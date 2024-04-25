@@ -9,15 +9,15 @@ import java.util.List;
 public interface UserService {
 
 
-    ResponseBase getusers();
+    List<User> getusers();
 
-    ResponseBase getUserDetail();
+    List<UserDTO> getUserDetail();
 
     ResponseBase saveDTO(UserDTO userDTO, List<String> strRoles);
 
-    ResponseBase update(Long id, User newUser);
+    List<User> update(Long id, User newUser);
 
-    ResponseBase  delete(Long id);
+    Boolean  delete(Long id);
 
     ResponseBase changePw(Long id, String ps , String newPw);
 }

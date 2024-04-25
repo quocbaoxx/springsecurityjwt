@@ -33,54 +33,70 @@ public class UserController {
 
 
     @GetMapping("/get-users")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseBase getUser(){
-        return userService.getusers();
+        return new ResponseBase(userService.getusers());
     }
 
 
 
     @GetMapping("/get-user-detail")
     public  ResponseBase getUserDetail(){
-        return  userService.getUserDetail();
+        return new ResponseBase(userService.getUserDetail()) ;
     }
 
-//    @PostMapping ("/add-user")
-//    public  ResponseBase saveDTO(@RequestBody UserDTO userDTO){
-//        return  userService.saveDTO(userDTO);
-//    }
-//    @PutMapping("/update-user/{id}")
-//    public  ResponseBase update(@PathVariable("id")Long id,
-//                                @RequestBody User user){
-//        return  userService.update(id,user);
-//    }
+    @PutMapping("/update-user/{id}")
+    public ResponseBase updateUser(@PathVariable Long id,
+                                                   @RequestBody User newUser) {
+        List<User> updatedUsers = userService.update(id, newUser);
+        ResponseBase response = new ResponseBase();
+
+        if (updatedUsers.isEmpty()) {
+            response.setMessage("Không tìm thấy người dùng để cập nhật");
+            response.setCode("404");
+            return response;
+        } else {
+            response.setData(updatedUsers);
+            response.setMessage("Cập nhật người dùng thành công");
+            response.setCode("200");
+            return response;
+        }
+    }
 
     @PostMapping("/add-user")
-    public ResponseEntity<ResponseBase> saveUser(@RequestBody UserDTO userDTO,
+    public ResponseBase saveUser(@RequestBody UserDTO userDTO,
                                                  @RequestParam(required = false) List<String> strRoles) {
         ResponseBase response = userService.saveDTO(userDTO, strRoles);
-        return ResponseEntity.ok(response);
+        return response;
     }
 
-
-
-
-    @DeleteMapping("/{id}")
-    public  ResponseBase  delete(@PathVariable("id") Long id){
-         return userService.delete(id);
-    }
 
 
 
     @PostMapping("/change-password/{id}")
-    public ResponseEntity<ResponseBase> changePassword(@PathVariable Long id,
+    public ResponseBase changePassword(@PathVariable Long id,
                                                        @RequestParam("currentPassword") String currentPassword,
                                                        @RequestParam("newPassword") String newPassword) {
         ResponseBase responseBase = userService.changePw(id, currentPassword, newPassword);
-            return ResponseEntity.ok(responseBase);
+            return responseBase;
     }
 
 
+
+    @DeleteMapping("/{id}")
+    public ResponseBase deleteUser(@PathVariable Long id) {
+        ResponseBase response = new ResponseBase();
+        Boolean isDeleted = userService.delete(id);
+
+        if (isDeleted) {
+            response.setMessage("Xóa người dùng thành công");
+            response.setCode("200");
+            return response;
+        } else {
+            response.setMessage("Không tìm thấy người dùng để xóa");
+            response.setCode("404");
+            return response;
+        }
+    }
 
 
 

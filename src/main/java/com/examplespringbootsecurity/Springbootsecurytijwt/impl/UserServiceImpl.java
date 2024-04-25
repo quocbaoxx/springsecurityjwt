@@ -33,19 +33,19 @@ public class UserServiceImpl  implements UserService {
 
 
     @Override
-    public ResponseBase getusers() {
+    public List<User> getusers() {
         List<User> user = userRepository.findAll();
-        return new ResponseBase(user);
+        return user;
     }
 
     @Override
-    public ResponseBase getUserDetail() {
+    public List<UserDTO> getUserDetail() {
         List<UserDTO> userDTOS = userRepository.findAllDTO();
         for (UserDTO userDTO : userDTOS) {
             List<Role> roles = roleRepository.findByUserId(Math.toIntExact(userDTO.getId()));
             userDTO.setRoleList(roles);
         }
-        return new ResponseBase(userDTOS);
+        return userDTOS;
     }
 
 //    @Override
@@ -138,42 +138,54 @@ public class UserServiceImpl  implements UserService {
     }
 
 
-
-
-    @Override
-    public ResponseBase update( Long id, User newUser) {
-        ResponseBase responseBase = new ResponseBase();
+    public List<User> update(Long id, User newUser) {
+        List<User> updatedUsers = new ArrayList<>();
 
         Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isEmpty()){
-            responseBase.setMessage("ID không tồn tại");
-            return responseBase;
+        if (optionalUser.isEmpty()) {
+            return updatedUsers;
         }
+
         User user = optionalUser.get();
 
-        user.setPhone(newUser.getPhone());
         user.setUsername(newUser.getUsername());
         user.setPhone(newUser.getPhone());
-        return new ResponseBase(userRepository.save(user));
+
+        updatedUsers.add(userRepository.save(user));
+
+        return updatedUsers;
     }
 
-    @Override
-    public  ResponseBase  delete(Long id){
 
-        ResponseBase responseBase = new ResponseBase();
 
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()){
-            responseBase.setMessage("Id không hợp lệ");
-            return responseBase;
+//    @Override
+//    public ResponseBase update( Long id, User newUser) {
+//        ResponseBase responseBase = new ResponseBase();
+//
+//        Optional<User> optionalUser = userRepository.findById(id);
+//        if(optionalUser.isEmpty()){
+//            responseBase.setMessage("ID không tồn tại");
+//            return responseBase;
+//        }
+//        User user = optionalUser.get();
+//
+//        user.setPhone(newUser.getPhone());
+//        user.setUsername(newUser.getUsername());
+//        user.setPhone(newUser.getPhone());
+//        return new ResponseBase(userRepository.save(user));
+//    }
+
+    public Boolean delete(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setStatus(false);
+            userRepository.save(user);
+            return true;
+        } else {
+            return false;
         }
-        User user1 = user.get();
-        user1.setStatus(false);
-        userRepository.save(user1);
-
-
-        responseBase.setMessage("Xoá thành công");
-        return responseBase;
     }
 
     @Override

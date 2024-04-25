@@ -16,15 +16,19 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtils {
+    // Khởi tạo một Logger để ghi lại thông báo lỗi hoặc thông tin
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
+
+    // Lấy giá trị jwtSecret từ tệp application.properties
     @Value("${bezkoder.app.jwtSecret}")
     private String jwtSecret;
 
-
+    // Lấy giá trị jwtSecret từ tệp application.properties
     @Value("${bezkoder.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    // Phương thức để tạo JWT token từ thông tin xác thực của người dùng
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
@@ -34,23 +38,14 @@ public class JwtUtils {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS256, key())
-//                .signWith(key())
                 .compact();
     }
 
-
+    // Phương thức để tạo Key từ jwtSecret
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));    }
 
-
-//    private Key key() {
-//        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-//        return Keys.hmacShaKeyFor(keyBytes);
-//    }
-
-
-
-
+    // Phương thức để lấy tên người dùng từ JWT token
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key()).build()
                 .parseClaimsJws(token).getBody().getSubject();
