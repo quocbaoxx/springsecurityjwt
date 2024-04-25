@@ -46,11 +46,17 @@ public class User {
     private String code;
 
 
-    @Transient
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(  name = "tbl_user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
+
+//    @Transient
+//    private Set<Role> roles = new HashSet<>();
+//    public void setRoles(Set<Role> roles) {
+//        this.roles = roles;
+//    }
 
 
     @Column(name ="age")
