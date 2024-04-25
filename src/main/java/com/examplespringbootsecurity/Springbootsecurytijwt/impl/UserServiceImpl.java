@@ -2,6 +2,7 @@ package com.examplespringbootsecurity.Springbootsecurytijwt.impl;
 
 import com.examplespringbootsecurity.Springbootsecurytijwt.dto.ResponseBase;
 import com.examplespringbootsecurity.Springbootsecurytijwt.dto.UserDTO;
+import com.examplespringbootsecurity.Springbootsecurytijwt.models.ERole;
 import com.examplespringbootsecurity.Springbootsecurytijwt.models.Role;
 import com.examplespringbootsecurity.Springbootsecurytijwt.models.User;
 import com.examplespringbootsecurity.Springbootsecurytijwt.repository.RoleRepository;
@@ -14,8 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -48,32 +48,97 @@ public class UserServiceImpl  implements UserService {
         return new ResponseBase(userDTOS);
     }
 
+//    @Override
+//    public ResponseBase saveDTO(UserDTO userDTO) {
+//        User user = modelMapper.map(userDTO, User.class);
+//        ResponseBase response = new ResponseBase();
+//        if (userDTO.getAge()< 0 && userDTO.getAge()>99){
+//            response.setMessage("Số tuổi không hợp lệ");
+//            return  response;
+//        }
+//        //validate SDT
+//        ValidatePhone validatePhone = new ValidatePhone();
+//        try {
+//            validatePhone.checkPhone(userDTO.getPhone());
+//        } catch (PhoneException ex) {
+////            System.out.println(ex.getMessage());
+//            response.setMessage(ex.getMessage());
+//            return response;
+//        }
+//
+//        user.setPassword(encoder.encode(userDTO.getPassword()));
+//        response.setData(userRepository.save(user));
+//        response.setMessage("Yêu cầu thành công");
+//        response.setCode("200");
+//
+//        return response;
+//
+//    }
+
+
     @Override
-    public ResponseBase saveDTO(UserDTO userDTO) {
-        User user = modelMapper.map(userDTO, User.class);
+    public ResponseBase saveDTO(UserDTO userDTO, List<String> strRoles) {
         ResponseBase response = new ResponseBase();
-        if (userDTO.getAge()< 0 && userDTO.getAge()>99){
+
+        // Map DTO to User entity
+        User user = modelMapper.map(userDTO, User.class);
+
+        // Validate age
+        if (userDTO.getAge() < 0 || userDTO.getAge() > 99) {
             response.setMessage("Số tuổi không hợp lệ");
-            return  response;
+            return response;
         }
-        //validate SDT
+
+        // Validate phone
         ValidatePhone validatePhone = new ValidatePhone();
         try {
             validatePhone.checkPhone(userDTO.getPhone());
         } catch (PhoneException ex) {
-//            System.out.println(ex.getMessage());
             response.setMessage(ex.getMessage());
             return response;
         }
 
+        // Set password and encode
         user.setPassword(encoder.encode(userDTO.getPassword()));
+
+        // Set user roles
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            user.setRoles(Collections.singleton(userRole));
+        } else {
+            Set<Role> roles = new HashSet<>();
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+                        break;
+                    case "mod":
+                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(modRole);
+                        break;
+                    default:
+                        Role defaultRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(defaultRole);
+                }
+            });
+            user.setRoles(roles);
+        }
+
+        // Save user entity
         response.setData(userRepository.save(user));
         response.setMessage("Yêu cầu thành công");
         response.setCode("200");
 
         return response;
-
     }
+
+
+
 
     @Override
     public ResponseBase update( Long id, User newUser) {

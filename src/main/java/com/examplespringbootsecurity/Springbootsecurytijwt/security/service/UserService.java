@@ -4,6 +4,8 @@ import com.examplespringbootsecurity.Springbootsecurytijwt.dto.ResponseBase;
 import com.examplespringbootsecurity.Springbootsecurytijwt.dto.UserDTO;
 import com.examplespringbootsecurity.Springbootsecurytijwt.models.User;
 
+import java.util.List;
+
 public interface UserService {
 
 
@@ -11,7 +13,7 @@ public interface UserService {
 
     ResponseBase getUserDetail();
 
-    ResponseBase saveDTO(UserDTO userDTO);
+    ResponseBase saveDTO(UserDTO userDTO, List<String> strRoles);
 
     ResponseBase update(Long id, User newUser);
 

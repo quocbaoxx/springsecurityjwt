@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Past;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -44,15 +45,25 @@ public class UserController {
         return  userService.getUserDetail();
     }
 
-    @PostMapping ("/add-user")
-    public  ResponseBase saveDTO(@RequestBody UserDTO userDTO){
-        return  userService.saveDTO(userDTO);
+//    @PostMapping ("/add-user")
+//    public  ResponseBase saveDTO(@RequestBody UserDTO userDTO){
+//        return  userService.saveDTO(userDTO);
+//    }
+//    @PutMapping("/update-user/{id}")
+//    public  ResponseBase update(@PathVariable("id")Long id,
+//                                @RequestBody User user){
+//        return  userService.update(id,user);
+//    }
+
+    @PostMapping("/add-user")
+    public ResponseEntity<ResponseBase> saveUser(@RequestBody UserDTO userDTO,
+                                                 @RequestParam(required = false) List<String> strRoles) {
+        ResponseBase response = userService.saveDTO(userDTO, strRoles);
+        return ResponseEntity.ok(response);
     }
-    @PutMapping("/update-user/{id}")
-    public  ResponseBase update(@PathVariable("id")Long id,
-                                @RequestBody User user){
-        return  userService.update(id,user);
-    }
+
+
+
 
     @DeleteMapping("/{id}")
     public  ResponseBase  delete(@PathVariable("id") Long id){
