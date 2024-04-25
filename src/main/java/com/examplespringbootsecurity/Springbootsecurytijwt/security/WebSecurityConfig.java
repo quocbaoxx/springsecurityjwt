@@ -66,11 +66,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
                 .and()
-                .authorizeRequests().antMatchers("/api/auth/signin").hasAuthority("ROLE_USER")
+                .authorizeRequests().antMatchers("/api/v1/user/random").hasAuthority("ROLE_USER")
                 .and()
                 .authorizeRequests().antMatchers("/api/v1/user/**").hasAuthority("ROLE_ADMIN")
 
                 .anyRequest().authenticated();
+
+        http.headers().frameOptions().sameOrigin();//logout
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);// Thêm AuthTokenFilter vào filter chain trước UsernamePasswordAuthenticationFilter
 

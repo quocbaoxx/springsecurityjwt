@@ -6,6 +6,7 @@ import com.examplespringbootsecurity.Springbootsecurytijwt.dto.UserDTO;
 import com.examplespringbootsecurity.Springbootsecurytijwt.models.ERole;
 import com.examplespringbootsecurity.Springbootsecurytijwt.models.Role;
 import com.examplespringbootsecurity.Springbootsecurytijwt.models.User;
+import com.examplespringbootsecurity.Springbootsecurytijwt.payload.response.MessageResponse;
 import com.examplespringbootsecurity.Springbootsecurytijwt.repository.RoleRepository;
 import com.examplespringbootsecurity.Springbootsecurytijwt.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,10 @@ public class UserController {
     }
 
 
+    @GetMapping("/random")
+    public MessageResponse randomStuff(){
+        return new MessageResponse("xác thuc Hợp lệ mới có thể thấy được message này");
+    }
 
 
     @PostMapping("/change-password/{id}")

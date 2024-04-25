@@ -35,6 +35,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            //mỗi lần call chạy vào đây
             // Kiểm tra xem yêu cầu có chứa token JWT không và token đó có hợp lệ không
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
@@ -62,14 +63,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+//    private String parseJwt(HttpServletRequest request) {
+//        String headerAuth = request.getHeader("Authorization");
+//
+//        // Kiểm tra xem tiêu đề "Authorization" có chứa token JWT không và trả về token nếu có
+//        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+//            return headerAuth.substring(7);
+//        }
+//
+//        return null;
+//    }
+
+
     private String parseJwt(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
-
-        // Kiểm tra xem tiêu đề "Authorization" có chứa token JWT không và trả về token nếu có
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
-        }
-
-        return null;
+        String jwt = jwtUtils.getJwtFromCookies(request);
+        return jwt;
     }
+
 }

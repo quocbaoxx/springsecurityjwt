@@ -13,11 +13,14 @@ import com.examplespringbootsecurity.Springbootsecurytijwt.payload.request.Login
 import com.examplespringbootsecurity.Springbootsecurytijwt.payload.request.SignupRequest;
 import com.examplespringbootsecurity.Springbootsecurytijwt.payload.response.JwtResponse;
 import com.examplespringbootsecurity.Springbootsecurytijwt.payload.response.MessageResponse;
+import com.examplespringbootsecurity.Springbootsecurytijwt.payload.response.UserInfoResponse;
 import com.examplespringbootsecurity.Springbootsecurytijwt.repository.RoleRepository;
 import com.examplespringbootsecurity.Springbootsecurytijwt.repository.UserRepository;
 import com.examplespringbootsecurity.Springbootsecurytijwt.security.jwt.JwtUtils;
 import com.examplespringbootsecurity.Springbootsecurytijwt.security.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,22 +54,37 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
+        // Xác thực người dùng bằng tên người dùng và mật khẩu từ yêu cầu đăng nhập
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
+        // Thiết lập thông tin xác thực vào SecurityContextHolder
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Tạo JWT token từ thông tin xác thực
         String jwt = jwtUtils.generateJwtToken(authentication);
-
+        // Lấy chi tiết người dùng sau khi xác thực
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        // Tạo ResponseCookie chứa JWT
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
+        // Lấy danh sách vai trò của người dùng
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+        // Trả về phản hồi thành công với thông tin người dùng và JWT token
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())// Thiết lập cookie chứa JWT trong header
+                .body(new UserInfoResponse(jwt,userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles));// Trả về thông tin người dùng và JWT trong phản hồi
+
+
+//        return ResponseEntity.ok(new JwtResponse(jwt,
+//                userDetails.getId(),
+//                userDetails.getUsername(),
+//                userDetails.getEmail(),
+//                roles));
     }
 
 
@@ -125,9 +143,12 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    @GetMapping("/random")
-    public MessageResponse randomStuff(){
-        return new MessageResponse("xác thuc Hợp lệ mới có thể thấy được message này");
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> logoutUser() {
+        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new MessageResponse("You've been signed out!"));
     }
 
 
