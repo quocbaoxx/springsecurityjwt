@@ -48,32 +48,6 @@ public class UserServiceImpl  implements UserService {
         return userDTOS;
     }
 
-//    @Override
-//    public ResponseBase saveDTO(UserDTO userDTO) {
-//        User user = modelMapper.map(userDTO, User.class);
-//        ResponseBase response = new ResponseBase();
-//        if (userDTO.getAge()< 0 && userDTO.getAge()>99){
-//            response.setMessage("Số tuổi không hợp lệ");
-//            return  response;
-//        }
-//        //validate SDT
-//        ValidatePhone validatePhone = new ValidatePhone();
-//        try {
-//            validatePhone.checkPhone(userDTO.getPhone());
-//        } catch (PhoneException ex) {
-////            System.out.println(ex.getMessage());
-//            response.setMessage(ex.getMessage());
-//            return response;
-//        }
-//
-//        user.setPassword(encoder.encode(userDTO.getPassword()));
-//        response.setData(userRepository.save(user));
-//        response.setMessage("Yêu cầu thành công");
-//        response.setCode("200");
-//
-//        return response;
-//
-//    }
 
 
     @Override
@@ -156,24 +130,6 @@ public class UserServiceImpl  implements UserService {
         return updatedUsers;
     }
 
-
-
-//    @Override
-//    public ResponseBase update( Long id, User newUser) {
-//        ResponseBase responseBase = new ResponseBase();
-//
-//        Optional<User> optionalUser = userRepository.findById(id);
-//        if(optionalUser.isEmpty()){
-//            responseBase.setMessage("ID không tồn tại");
-//            return responseBase;
-//        }
-//        User user = optionalUser.get();
-//
-//        user.setPhone(newUser.getPhone());
-//        user.setUsername(newUser.getUsername());
-//        user.setPhone(newUser.getPhone());
-//        return new ResponseBase(userRepository.save(user));
-//    }
 
     public Boolean delete(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
